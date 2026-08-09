@@ -699,9 +699,16 @@ function revealVisibleSections() {
    in index.html). We only load the iframe's src the first time,
    inside the envelope's click handler — that's the one moment we
    have a genuine "user gesture" to spend on trying to get Spotify to
-   autoplay. Spotify and mobile browsers can still block that; if so,
-   the panel simply stays open with Spotify's own Play button visible
-   as a fallback, rather than pretending something is playing.
+   autoplay.
+
+   Fixed: this used to also force the visual panel open the instant
+   the envelope opened. Since the panel is position:fixed near the
+   top of the screen, that meant it sat directly on top of the
+   letter/timeline content underneath and silently ate clicks meant
+   for the page — a real invisible-overlay bug, not just an envelope
+   one. Now opening the envelope only attempts playback in the
+   background; the panel itself only appears when the person taps
+   the small music button, same as any other button on the page.
    ================================================================ */
 const SPOTIFY_EMBED_URL = "https://open.spotify.com/embed/track/7D0RhFcb3CrfPuTJ0obrod";
 
@@ -714,21 +721,22 @@ function setupMusic() {
 
   let activated = false; // whether the embed has been loaded yet
 
-  function activate() {
+  function activate(showPanel) {
     if (!activated) {
       activated = true;
       iframe.src = SPOTIFY_EMBED_URL + "?autoplay=1";
     }
-    panel.hidden = false;
     toggle.hidden = false;
     toggle.classList.add("playing");
+    if (showPanel) panel.hidden = false;
   }
 
-  // Called from the envelope click handler.
-  window.attemptMusicAutoplay = activate;
+  // Called from the envelope click handler — background attempt only,
+  // never forces the panel open over the page content.
+  window.attemptMusicAutoplay = () => activate(false);
 
   toggle.addEventListener("click", () => {
-    if (!activated) { activate(); return; }
+    if (!activated) { activate(true); return; }
     panel.hidden = !panel.hidden;
     toggle.classList.toggle("playing", !panel.hidden);
   });
