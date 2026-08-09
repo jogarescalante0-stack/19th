@@ -663,6 +663,15 @@ function burstHearts(count) {
 
 /* ================================================================
    SCROLL REVEAL
+   Fixed: the old threshold (0.15) required 15% of an element's ENTIRE
+   height to be visible at once before it would reveal. That works
+   fine for small elements, but sections like the 19-month timeline
+   are far taller than any phone screen — 15% of a ~7,600px-tall
+   section is over 1,100px, more than a whole viewport's worth, so it
+   could never actually happen. Those sections were staying invisible
+   forever. A near-zero threshold reveals a section as soon as any
+   part of it scrolls into view, which works regardless of how tall
+   the section is.
    ================================================================ */
 function setupScrollReveal() {
   const observer = new IntersectionObserver((entries) => {
@@ -672,13 +681,16 @@ function setupScrollReveal() {
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.15 });
+  }, { threshold: 0, rootMargin: "0px 0px -1px 0px" });
   document.querySelectorAll(".reveal").forEach(t => observer.observe(t));
 }
 function revealVisibleSections() {
   document.querySelectorAll(".reveal").forEach(el => {
     const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight) el.classList.add("in-view");
+    // Reveal anything that overlaps the viewport at all right now, not just
+    // things that start above the fold — a tall section can already have
+    // its top edge on-screen even though most of it extends further down.
+    if (rect.top < window.innerHeight && rect.bottom > 0) el.classList.add("in-view");
   });
 }
 
