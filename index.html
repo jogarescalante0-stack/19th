@@ -32,26 +32,17 @@
   </button>
 </div>
 <!-- ==================================================================
-     🎵 SPOTIFY MUSIC EMBED
+     🎵 MONTHSARY MUSIC FILE
+     Replace the filename below with your own music file
      ==================================================================
-     A small, dismissible Spotify player. It only starts loading (and
-     attempting playback) once you open the envelope — that's the one
-     moment we have a real "user gesture" to work with, which is what
-     browsers require before letting audio play. If Spotify or the
-     browser still blocks autoplay, the player itself stays visible
-     with its own Play button as a fallback — never a fake/silent
-     "autoplay" that isn't actually playing anything.
+     This <audio> element has no visual box of its own — it just plays
+     in the background. Put your song at music/monthsary.mp3 (or edit
+     the src below to match whatever filename/path you use).
      ================================================================== -->
-<div class="music-panel" id="musicPanel" hidden>
-  <button class="music-panel-close" id="musicPanelClose" type="button" aria-label="Hide music player">&times;</button>
-  <iframe
-    id="spotifyMusic"
-    title="Background music"
-    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-    loading="lazy"
-    frameborder="0">
-  </iframe>
-</div>
+<audio id="monthsaryMusic" preload="auto" loop>
+  <!-- 🎵 CHANGE THIS TO YOUR ACTUAL MUSIC FILE -->
+  <source src="music/monthsary.mp3" type="audio/mpeg">
+</audio>
 <!-- ================================================================== -->
 
 <!-- Hidden file inputs reused by JS for single-image uploads -->

@@ -151,47 +151,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   display: flex; align-items: center; justify-content: center;
 }
 .music-toggle.playing .music-icon { animation: spin 3s linear infinite; }
+.music-toggle.muted { opacity: 0.55; }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-/* ================= MUSIC PANEL (Spotify embed) ================= */
-.music-panel {
-  position: fixed;
-  top: 62px;
-  right: 12px;
-  width: min(320px, calc(100vw - 24px));
-  z-index: var(--z-controls);
-  background: var(--paper);
-  border-radius: var(--radius-md);
-  box-shadow: 0 10px 26px -8px hsl(var(--shadow-color) / 0.4);
-  padding: 8px;
-}
-.music-panel-close {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: var(--deep-rose);
-  color: #fff;
-  font-size: 0.95rem;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-  z-index: 1;
-}
-.music-panel iframe {
-  display: block;
-  width: 100%;
-  height: 152px;
-  border: 0;
-  border-radius: calc(var(--radius-md) - 6px);
-}
-@media (max-width: 480px) {
-  .music-panel { top: 58px; right: 8px; left: 8px; width: auto; }
-}
 
 /* ================= TOAST ================= */
 .toast {
@@ -282,11 +243,6 @@ body.editing .photo-frame:focus-within .photo-actions {
   z-index: 4;
 }
 body.editing .remove-item-btn { display: flex; }
-
-/* NOTE: background music now plays through a small Spotify embed panel
-   (see index.html / setupMusic() in script.js), which stays inside its
-   own fixed-position card and never overlays or blocks the rest of
-   the page. */
 
 /* ================= PARTICLES ================= */
 .particle-layer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: var(--z-decor); }

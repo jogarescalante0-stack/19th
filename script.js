@@ -695,55 +695,70 @@ function revealVisibleSections() {
 }
 
 /* ================================================================
-   MUSIC (Spotify embed — see the "SPOTIFY MUSIC EMBED" comment block
-   in index.html). We only load the iframe's src the first time,
-   inside the envelope's click handler — that's the one moment we
-   have a genuine "user gesture" to spend on trying to get Spotify to
-   autoplay.
-
-   Fixed: this used to also force the visual panel open the instant
-   the envelope opened. Since the panel is position:fixed near the
-   top of the screen, that meant it sat directly on top of the
-   letter/timeline content underneath and silently ate clicks meant
-   for the page — a real invisible-overlay bug, not just an envelope
-   one. Now opening the envelope only attempts playback in the
-   background; the panel itself only appears when the person taps
-   the small music button, same as any other button on the page.
+   MUSIC (plays a local audio file — see the "MONTHSARY MUSIC FILE"
+   comment block in index.html for where to put your song).
+   One small button cycles through the three states you'd expect:
+   ▶ Play → ♪ Playing (click = mute) → 🔇 Muted (click = pause) → ▶ ...
+   Starting playback happens inside the envelope's click handler,
+   which is the one moment we have a genuine "user gesture" — that's
+   what the browser requires before it will allow audio to play.
    ================================================================ */
-const SPOTIFY_EMBED_URL = "https://open.spotify.com/embed/track/7D0RhFcb3CrfPuTJ0obrod";
-
 function setupMusic() {
   const toggle = document.getElementById("musicToggle");
-  const panel = document.getElementById("musicPanel");
-  const closeBtn = document.getElementById("musicPanelClose");
-  const iframe = document.getElementById("spotifyMusic");
-  if (!panel || !iframe) return;
+  const icon = toggle.querySelector(".music-icon");
+  const audio = document.getElementById("monthsaryMusic");
+  if (!audio) return; // no music file wired up yet — leave the toggle hidden
 
-  let activated = false; // whether the embed has been loaded yet
+  let state = "paused"; // 'paused' | 'playing' | 'muted'
 
-  function activate(showPanel) {
-    if (!activated) {
-      activated = true;
-      iframe.src = SPOTIFY_EMBED_URL + "?autoplay=1";
+  function updateIcon() {
+    toggle.classList.toggle("playing", state === "playing");
+    toggle.classList.toggle("muted", state === "muted");
+    if (state === "playing") {
+      icon.textContent = "♪";
+      toggle.setAttribute("aria-label", "Mute music");
+    } else if (state === "muted") {
+      icon.textContent = "🔇";
+      toggle.setAttribute("aria-label", "Pause music");
+    } else {
+      icon.textContent = "▶";
+      toggle.setAttribute("aria-label", "Play music");
     }
-    toggle.hidden = false;
-    toggle.classList.add("playing");
-    if (showPanel) panel.hidden = false;
   }
 
-  // Called from the envelope click handler — background attempt only,
-  // never forces the panel open over the page content.
-  window.attemptMusicAutoplay = () => activate(false);
+  function startPlaying() {
+    audio.muted = false;
+    audio.play().then(() => {
+      state = "playing";
+      updateIcon();
+      toggle.hidden = false;
+    }).catch((error) => {
+      // Autoplay blocked — not a bug, just a browser policy. Reveal the
+      // button so the person can start it themselves with one tap.
+      console.log("Music playback was blocked:", error);
+      state = "paused";
+      updateIcon();
+      toggle.hidden = false;
+    });
+  }
+
+  // Called from the envelope click handler — this is the one moment we
+  // have a genuine user gesture to spend on starting audio.
+  window.attemptMusicAutoplay = startPlaying;
 
   toggle.addEventListener("click", () => {
-    if (!activated) { activate(true); return; }
-    panel.hidden = !panel.hidden;
-    toggle.classList.toggle("playing", !panel.hidden);
-  });
-
-  closeBtn.addEventListener("click", () => {
-    panel.hidden = true;
-    toggle.classList.remove("playing");
+    if (state === "paused") {
+      startPlaying();
+    } else if (state === "playing") {
+      audio.muted = true;
+      state = "muted";
+      updateIcon();
+    } else if (state === "muted") {
+      audio.pause();
+      audio.muted = false;
+      state = "paused";
+      updateIcon();
+    }
   });
 }
 
